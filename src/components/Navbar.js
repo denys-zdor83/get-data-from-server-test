@@ -1,14 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useSelector } from 'react-redux'
 import { NavLink } from 'react-router-dom';
 
 import { LOGIN, REGISTER } from './../utils/consts'
-import MainContext from './../context/mainContext'
-
 
 function Navbar() {
-  let {isToken} = React.useContext(MainContext);
-
+  const isToken = useSelector(state => state.appData.isToken);
+  console.log(isToken)
   return (
     <NavbarContainer>
         <NavLink to={`/${LOGIN}`}>

@@ -1,25 +1,24 @@
 import React from 'react';
 import styled from 'styled-components';
-
+import { useSelector } from 'react-redux'
 import axios from 'axios'
-
-// export default ({ url = '', headers, method = 'get', params = {}, data = {} }) => {
-//     return axios({
-//       url,
-//       method,
-//       headers: {
-//         Authorization: Bearer ${Cookies.get('token')},
-//         TimeZone: moment().format('ZZ'),
-//         ...headers
-//       },
-//       params,
-//       data
-//     })
-//   }
 
 
 const UsersPage = () => {
+  const users = useSelector(state => state.appData.users);
 
+
+    const usersArray = users.map(elem => {
+        return (
+            <tr key={elem._id}>
+                <td>{elem.firstName}</td>
+                <td>{elem.lastName}</td>
+                <td>{elem.gender}</td>
+                <td>{elem.position}</td>
+                <td>{elem.salary}</td>
+            </tr>
+        )
+    })
     return (
         <UsersContainer>
             <table>
@@ -33,9 +32,12 @@ const UsersPage = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {/* {usersArray} */}
+                    {usersArray}
                 </tbody>
             </table>
+            <button>
+                Add User
+            </button>
         </UsersContainer>
     );
 }
@@ -47,6 +49,7 @@ const UsersContainer = styled.div`
         border-collapse: collapse;
         width: 100%;
         border: 2px solid #000;
+        margin-bottom: 20px;
     }
     .titleLine {
         background: #efe67a42;
@@ -56,6 +59,18 @@ const UsersContainer = styled.div`
     td {
         padding: 10px;
         border: 1px solid #000;
+    }
+    button {
+        border: none;
+        width: 100px;
+        height: 40px;
+        background: #00ab2e;
+        border-radius: 3px;
+        color: #fff;
+        font-size: 17px;
+        box-shadow: 3px 3px 13px 2px #0000003d;
+        cursor: pointer;
+        outline: none;
     }
 `
 

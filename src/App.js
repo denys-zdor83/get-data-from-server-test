@@ -1,14 +1,18 @@
 import React from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
+import { useHistory } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 
-import MainContext from './context/mainContext'
+import { LOGIN, USER_PAGE } from './utils/consts'
 import Navbar from './components/Navbar'
 import EnterPage from './components/EnterPage';
+import { SET_IS_TOKEN, SET_USERS } from './utils/consts'
+
 
 function App() {
-  const [users, setUsers] = React.useState([]);
-  const [isToken, setIsToken] = React.useState('');
+  const history = useHistory();
+  const dispatch = useDispatch()
 
   const showList = (storageToken) => {
       axios({
@@ -19,45 +23,35 @@ function App() {
           }
       })
       .then(response => {
-          console.log(response)
-          setUsers(response.data.workers);
+        console.log(response.data.workers)
+        dispatch({type: SET_USERS, payload: response.data.workers})
       })
       .catch(error => {
-          console.log('Some mistake - ' + error)
+        console.log('Some mistake - ' + error)
       })
   }
   React.useEffect(() => {
-      const storageToken = localStorage.getItem('token');
-      axios
-          .get('http://localhost:8080/info', {
-              headers: {
-                  "x-access-token": storageToken
-              }
-          })
-          .then(response => {
-              showList(storageToken)
-              setIsToken(true);
-          })
-          .catch(error => {
-              console.log('Some mistake - ' + error.data)
-              setIsToken(false);
-          })
+    const storageToken = localStorage.getItem('token');
+    axios
+        .get('http://localhost:8080/info', {
+            headers: {
+                "x-access-token": storageToken
+            }
+        })
+        .then(response => {
+          showList(storageToken)
+          dispatch({type: SET_IS_TOKEN, payload: true})
+          history.push(`/${USER_PAGE}`)
+        })
+        .catch(error => {
+          console.log('Some mistake - ' + error.data)
+          dispatch({type: SET_IS_TOKEN, payload: false})
+          history.push(`/${LOGIN}`)
+        })
 
   }, [])
-  // const usersArray = users.map(elem => {
-  //     return (
-  //         <tr key={elem._id}>
-  //             <td>{elem.firstName}</td>
-  //             <td>{elem.lastName}</td>
-  //             <td>{elem.gender}</td>
-  //             <td>{elem.position}</td>
-  //             <td>{elem.salary}</td>
-  //         </tr>
-  //     )
-  // })
-  console.log(isToken)
+
   return (
-    <MainContext.Provider value={{isToken, users}} >
       <EnterPageContainer>
 
         <Navbar />
@@ -65,7 +59,6 @@ function App() {
         <EnterPage />
 
       </EnterPageContainer>
-    </MainContext.Provider>
   );
 }
 

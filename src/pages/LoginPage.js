@@ -2,10 +2,12 @@ import React from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
 import {useHistory} from 'react-router-dom'
+import { LOGIN, REGISTER, USER_PAGE } from './../utils/consts'
 
 function LoginPage() {
     const [email, setEmail] = React.useState('');
     const [password, setPass] = React.useState('');
+    const [errMessage, setErrMessage] = React.useState('');
     const history = useHistory();
 
     const changeHandler = (e) => {
@@ -22,10 +24,14 @@ function LoginPage() {
             .post(`http://localhost:8080/login`, {email, password})
             .then(response => {
                 localStorage.setItem('token', response.data.token)
-                history.push("/")
+                history.push(`/${USER_PAGE}`)
+                setErrMessage('')
             })
             .catch(error => {
                 console.log('Some mistake - ' + error)
+                setErrMessage('Не верный логин или пароль')
+                setEmail('')
+                setPass('')
             })
     }
 
@@ -41,6 +47,9 @@ function LoginPage() {
                     <button type="submit">Log in</button>
                 </div>
             </form>
+            <div className="error">
+                {errMessage}
+            </div>
         </div>
     </LoginContainer>
   );
@@ -83,6 +92,10 @@ const LoginContainer = styled.div`
                 outline: none;
             }
         }
+    }
+    .error {
+        color: #f00;
+        text-align: center;
     }
 `
 
