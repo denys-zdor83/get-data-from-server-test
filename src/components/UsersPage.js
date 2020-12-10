@@ -1,12 +1,34 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import axios from 'axios'
-
+import { SET_USERS, SWITCH_MODAL } from './../utils/consts'
 
 const UsersPage = () => {
-  const users = useSelector(state => state.appData.users);
+    const users = useSelector(state => state.appData.users);
+    const dispatch = useDispatch();
 
+    const showModal = () => {
+        dispatch({type: SWITCH_MODAL, payload: true})
+    }
+
+    React.useEffect(() => {
+        const storageToken = localStorage.getItem('token');
+        axios({
+            method: 'post',
+            url: 'http://localhost:8080/',
+            headers: {
+                "x-access-token": storageToken,
+            }
+        })
+        .then(response => {
+          console.log(response.data.workers)
+          dispatch({type: SET_USERS, payload: response.data.workers})
+        })
+        .catch(error => {
+          console.log('Some mistake - ' + error)
+        })
+    }, []);
 
     const usersArray = users.map(elem => {
         return (
@@ -35,7 +57,7 @@ const UsersPage = () => {
                     {usersArray}
                 </tbody>
             </table>
-            <button>
+            <button onClick={showModal}>
                 Add User
             </button>
         </UsersContainer>

@@ -7,14 +7,21 @@ import { LOGIN, REGISTER } from './../utils/consts'
 
 function Navbar() {
   const isToken = useSelector(state => state.appData.isToken);
-  console.log(isToken)
+  const changeIsLoged = () => {
+    if (isToken) {
+
+    }
+  }
+
   return (
     <NavbarContainer>
         <NavLink to={`/${LOGIN}`}>
           <button>{isToken ? "Log out" : "Log in"}</button>
         </NavLink>
         <NavLink to={`/${REGISTER}`}>
-          <button className={isToken ? "hide" : ""}>Register</button>
+          <button 
+            className={isToken ? "hide" : ""} 
+            onClick={changeIsLoged}>Register</button>
         </NavLink>
     </NavbarContainer>
   );
@@ -28,7 +35,6 @@ const NavbarContainer = styled.div`
     background: #efe67a42;
     border-radius: 5px;
     box-shadow: 3px 3px 10px 3px #5c5c5c42;
-    margin-top: 20px;
     margin-bottom: 50px;
     button {
         border: none;

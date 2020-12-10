@@ -4,5 +4,7 @@ export const USER_PAGE = "user-page"
 
 export const SET_IS_TOKEN = "SET_IS_TOKEN"
 export const SET_USERS = "SET_USERS"
+export const SWITCH_MODAL = "SWITCH_MODAL"
+
 
 

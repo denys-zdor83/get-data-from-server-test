@@ -1,7 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 import axios from 'axios'
-import {useHistory} from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
+
 import { LOGIN, REGISTER, USER_PAGE } from './../utils/consts'
 
 function LoginPage() {

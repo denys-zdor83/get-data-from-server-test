@@ -1,13 +1,16 @@
-import { SET_IS_TOKEN, SET_USERS } from './../../utils/consts'
+import { 
+    SET_IS_TOKEN, 
+    SET_USERS,
+    SWITCH_MODAL } from './../../utils/consts'
 
 const initialState = {
     isToken: false,
-    users: []
+    users: [],
+    isModal: false
 }
 
-
 function appData(state = initialState, action) {
-    switch (action.payload) {
+    switch (action.type) {
 
         case SET_IS_TOKEN: {
             return {
@@ -22,6 +25,14 @@ function appData(state = initialState, action) {
                 users: action.payload
             }
         }
+
+        case SWITCH_MODAL: {
+            return {
+                ...state,
+                isModal: action.payload
+            }
+        }
+
     }
     return state
 }
