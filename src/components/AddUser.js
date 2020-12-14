@@ -1,111 +1,161 @@
 import React from 'react';
 import styled from 'styled-components';
-import axios from 'axios'
 import { useDispatch, useSelector } from 'react-redux'
-import { SWITCH_MODAL } from './../utils/consts'
+
+import { 
+  SET_USER_DATA,
+  SET_SINGLE_STATE_ITEM } from './../utils/consts'
+import requestHandler from './../utils/requestHandler';
+import useClearDataHandler from '../utils/useClearDataHandler';
+
 
 const AddUser = () => {
-    const [firstName, setfirstName] = React.useState('');
-    const [lastName, setlastName] = React.useState('');
-    const [gender, setGender] = React.useState('');
-    const [salary, setSalary] = React.useState('');
-    const [position, setPosition] = React.useState('');
-    const dispatch = useDispatch();
- 
-    const closeModal = () => {
-      dispatch({type: SWITCH_MODAL, payload: false})
-    }
+  const userData = useSelector(state => state.appData.userData);
+  const {firstName, lastName, gender, salary, position} = userData;
+  const editID = useSelector(state => state.appData.editID);
 
-    const submitHandler = (e) => {
-        e.preventDefault();
-        const storageToken = localStorage.getItem('token');
-        axios({
-            method: 'post',
-            url: 'http://localhost:8080/create',
-            headers: {
-                "x-access-token": storageToken,
-            },
-            data: {
-                firstName,
-                lastName,
-                gender,
-                salary,
-                position
-              }
+  const dispatch = useDispatch();
+  const clearData = useClearDataHandler();
+
+  const closeModal = () => {
+    dispatch({
+      type: SET_SINGLE_STATE_ITEM,
+      payload: {
+          field: "isModal",
+          set: false
+      }
+    })
+    if (editID.length) {
+      dispatch({
+        type: SET_SINGLE_STATE_ITEM,
+        payload: {
+            field: "editID",
+            set: ""
+        }
+      })
+    }
+  }
+
+  const submitHandler = (e) => {
+      e.preventDefault();
+      const storageToken = localStorage.getItem('token');
+      closeModal();
+
+      if (editID.length) {
+        requestHandler({
+          method: 'post',
+          urlPrefix: `update/${editID}`,
+          headers: {"x-access-token": storageToken},
+          data: {
+            firstName,
+            lastName,
+            gender,
+            salary,
+            position
+          }
         })
         .then(response => {
           console.log(response)
-          dispatch({type: SWITCH_MODAL, payload: false})
-
         })
         .catch(error => {
             console.log('Some mistake - ' + error)
         })
-    }
-  
-    const changeHandler = (e) => {
-      switch (e.target.name) {
-        case 'firstName': setfirstName(e.target.value);
-        break;
-        case 'lastName': setlastName(e.target.value);
-        break;
-        case 'gender': setGender(e.target.value);
-        break;
-        case 'salary': setSalary(e.target.value);
-        break;
-        case 'position': setPosition(e.target.value);
-        break;
+        dispatch({
+          type: SET_SINGLE_STATE_ITEM,
+          payload: {
+              field: "editID",
+              set: ""
+          }
+        })
+      } else {
+        requestHandler({
+          method: 'post',
+          urlPrefix: 'create',
+          headers: {"x-access-token": storageToken},
+          data: {
+            firstName,
+            lastName,
+            gender,
+            salary,
+            position
+          }
+        })
+        .then(response => {
+          console.log(response)
+        })
+        .catch(error => {
+            console.log('Some mistake - ' + error)
+        })
       }
+  }
+
+  const changeHandler = (e) => {
+    dispatch(
+      {
+        type: SET_USER_DATA, 
+        payload: {
+            field: e.target.name, 
+            set: e.target.value
+        }
+      }
+    )
+  }
+
+  React.useEffect(() => {
+    return () => {
+      clearData(SET_USER_DATA, userData)
     }
-    return (
-        <AddUserContainer>
-          <div className="modal">
-            <div className="cross" onClick={closeModal}>
-              &times;
-            </div>
-            <form onSubmit={ submitHandler }>
-              <label>First Name</label>
-              <input 
-                type="text" 
-                name="firstName" 
-                value={firstName} 
-                onChange={changeHandler}
-              />
-              <label>Last Name</label>
-              <input 
-                type="text" 
-                name="lastName" 
-                value={lastName} 
-                onChange={changeHandler}
-              />
-              <label>Gender</label>
-              <input 
-                type="text" 
-                name="gender" 
-                value={gender} 
-                onChange={changeHandler}
-              />
-              <label>Salary</label>
-              <input 
-                type="text" 
-                name="salary" 
-                value={salary} 
-                onChange={changeHandler}
-              />
-              <label>Position</label>
-              <input 
-                type="text" 
-                name="position" 
-                value={position} 
-                onChange={changeHandler}
-              />
-              <div className="submit-btn">
-                <button type="submit" >Send</button>
-              </div>
-            </form>
+  }, [])
+
+  return (
+      <AddUserContainer>
+        <div className="modal">
+          <div className="cross" onClick={closeModal}>
+            &times;
           </div>
-        </AddUserContainer>
-    );
+          <form onSubmit={ submitHandler }>
+            <label>First Name</label>
+            <input 
+              type="text" 
+              name="firstName" 
+              value={firstName} 
+              onChange={changeHandler}
+            />
+            <label>Last Name</label>
+            <input 
+              type="text" 
+              name="lastName" 
+              value={lastName} 
+              onChange={changeHandler}
+            />
+            <label>Gender</label>
+            <input 
+              type="text" 
+              name="gender" 
+              value={gender} 
+              onChange={changeHandler}
+            />
+            <label>Salary</label>
+            <input 
+              type="text" 
+              name="salary" 
+              value={salary} 
+              onChange={changeHandler}
+            />
+            <label>Position</label>
+            <input 
+              type="text" 
+              name="position" 
+              value={position} 
+              onChange={changeHandler}
+            />
+            <div className="submit-btn">
+              <button type="submit" >Send</button>
+            </div>
+          </form>
+        </div>
+      </AddUserContainer>
+  );
 }
 
 const AddUserContainer = styled.div`

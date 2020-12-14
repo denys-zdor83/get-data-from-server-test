@@ -1,28 +1,49 @@
 import React from 'react';
 import styled from 'styled-components';
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { NavLink } from 'react-router-dom';
 
-import { LOGIN, REGISTER } from './../utils/consts'
+import { 
+  LOGIN, 
+  REGISTER, 
+  SET_SINGLE_STATE_ITEM } from './../utils/consts'
 
 function Navbar() {
   const isToken = useSelector(state => state.appData.isToken);
-  const changeIsLoged = () => {
-    if (isToken) {
 
-    }
+  const dispatch = useDispatch();
+
+  const logOut = () => {
+    localStorage.removeItem('token')
+    dispatch(
+      {
+        type: SET_SINGLE_STATE_ITEM, 
+        payload: {
+            field: "isToken", 
+            set: false
+        }
+      }
+    )
   }
 
   return (
     <NavbarContainer>
-        <NavLink to={`/${LOGIN}`}>
-          <button>{isToken ? "Log out" : "Log in"}</button>
-        </NavLink>
-        <NavLink to={`/${REGISTER}`}>
-          <button 
-            className={isToken ? "hide" : ""} 
-            onClick={changeIsLoged}>Register</button>
-        </NavLink>
+        {isToken ?
+          <NavLink to={`/${LOGIN}`}>
+            <button onClick={logOut}>Log out</button>
+          </NavLink>
+         :
+          <NavLink to={`/${LOGIN}`}>
+            <button>Log in</button>
+          </NavLink>
+         }
+
+        {!isToken && 
+          <NavLink to={`/${REGISTER}`}>
+            <button>Register</button>
+          </NavLink>
+        }
+
     </NavbarContainer>
   );
 }
@@ -47,9 +68,6 @@ const NavbarContainer = styled.div`
         box-shadow: 3px 3px 13px 2px #0000003d;
         cursor: pointer;
         outline: none;
-    }
-    .hide {
-          display: none;
     }
 `
 

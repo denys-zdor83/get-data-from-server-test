@@ -1,35 +1,70 @@
 import { 
-    SET_IS_TOKEN, 
-    SET_USERS,
-    SWITCH_MODAL } from './../../utils/consts'
+    SET_SINGLE_STATE_ITEM,
+    SET_FORM_DATA,
+    SET_USER_DATA } from './../../utils/consts'
 
 const initialState = {
     isToken: false,
+    isModal: false,
+    editID: "",
     users: [],
-    isModal: false
+    formData: {
+        name: "",
+        email: "",
+        password: ""
+    },
+    userData: {
+        firstName: "",
+        lastName: "",
+        gender: "",
+        salary: "",
+        position: "",
+    }
 }
 
 function appData(state = initialState, action) {
     switch (action.type) {
 
-        case SET_IS_TOKEN: {
+        case SET_SINGLE_STATE_ITEM: {
+            const {payload} = action;
             return {
                 ...state,
-                isToken: action.payload
+                [payload.field]: payload.set
             }
         }
 
-        case SET_USERS: {
+        case SET_FORM_DATA: {
+            const {payload} = action;
+
+            if (Object.keys(payload).includes("field")) {
+                return {
+                    ...state,
+                    formData: {
+                        ...state.formData,
+                        [payload.field]: payload.set
+                    } 
+                }
+            }
             return {
                 ...state,
-                users: action.payload
+                formData: payload.set 
             }
         }
 
-        case SWITCH_MODAL: {
+        case SET_USER_DATA: {
+            const {payload} = action;
+            if (Object.keys(payload).includes("field")) {
+                return {
+                    ...state,
+                    userData: {
+                        ...state.userData,
+                        [payload.field]: payload.set
+                    } 
+                }
+            }
             return {
                 ...state,
-                isModal: action.payload
+                userData: payload.set 
             }
         }
 

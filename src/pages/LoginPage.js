@@ -1,39 +1,59 @@
 import React from 'react'
 import styled from 'styled-components'
-import axios from 'axios'
 import { useHistory } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { LOGIN, REGISTER, USER_PAGE } from './../utils/consts'
+import requestHandler from './../utils/requestHandler';
+import { 
+    SET_SINGLE_STATE_ITEM,
+    USER_PAGE,
+    SET_FORM_DATA,
+    LOGIN } from './../utils/consts'
+import useClearDataHandler from '../utils/useClearDataHandler';
+
 
 function LoginPage() {
-    const [email, setEmail] = React.useState('');
-    const [password, setPass] = React.useState('');
-    const [errMessage, setErrMessage] = React.useState('');
+    const formData = useSelector(state => state.appData.formData); 
+    const {email, password} = formData;
+
+    const dispatch = useDispatch();
     const history = useHistory();
+    const clearData = useClearDataHandler();
 
     const changeHandler = (e) => {
-        switch (e.target.name) {
-            case 'email': setEmail(e.target.value);
-            break;
-            case 'password': setPass(e.target.value);
-        }
+        dispatch(
+            {
+                type: SET_FORM_DATA, 
+                payload: {
+                    field: e.target.name, 
+                    set: e.target.value
+                }
+            }
+        )
     }
 
     const submitHandler = (e) => {
         e.preventDefault();
-        axios
-            .post(`http://localhost:8080/login`, {email, password})
-            .then(response => {
-                localStorage.setItem('token', response.data.token)
-                history.push(`/${USER_PAGE}`)
-                setErrMessage('')
+        requestHandler({
+            method: 'post',
+            urlPrefix: `${LOGIN}`,
+            data: {email, password},
+        })
+        .then(response => {
+            localStorage.setItem('token', response.data.token)
+            history.push(`/${USER_PAGE}`)
+            dispatch({
+                type: SET_SINGLE_STATE_ITEM,
+                payload: {
+                    field: "isToken",
+                    set: true
+                }
             })
-            .catch(error => {
-                console.log('Some mistake - ' + error)
-                setErrMessage('Не верный логин или пароль')
-                setEmail('')
-                setPass('')
-            })
+            clearData(SET_FORM_DATA, formData);
+        })
+        .catch(error => {
+            console.log('Some mistake - ' + error.response.data.message);
+        })
     }
 
   return (
@@ -43,14 +63,11 @@ function LoginPage() {
                 <label htmlFor="">Email</label>
                 <input type="text" name="email" value={email} onChange={changeHandler} />
                 <label htmlFor="">Password</label>
-                <input type="text" name="password" value={password} onChange={changeHandler} />
+                <input type="password" name="password" value={password} onChange={changeHandler} />
                 <div className="send-btn">
-                    <button type="submit">Log in</button>
+                    <button type="submit">Enter</button>
                 </div>
             </form>
-            <div className="error">
-                {errMessage}
-            </div>
         </div>
     </LoginContainer>
   );
@@ -93,10 +110,6 @@ const LoginContainer = styled.div`
                 outline: none;
             }
         }
-    }
-    .error {
-        color: #f00;
-        text-align: center;
     }
 `
 

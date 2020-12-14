@@ -1,33 +1,52 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useSelector, useDispatch } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 
-import axios from 'axios'
-
+import requestHandler from './../utils/requestHandler';
+import { 
+    SET_FORM_DATA, 
+    LOGIN,
+    REGISTER } from './../utils/consts'
+import useClearDataHandler from '../utils/useClearDataHandler';
 
 function RegisterPage() {
-    const [name, setName] = React.useState('');
-    const [email, setEmail] = React.useState('');
-    const [password, setPass] = React.useState('');
+    const formData = useSelector(state => state.appData.formData); 
+    const {name, email, password} = formData;
+
+    const dispatch = useDispatch();
+    const history = useHistory();
+    const clearData = useClearDataHandler();
 
     const changeHandler = (e) => {
-        switch (e.target.name) {
-            case 'name': setName(e.target.value);
-            break;
-            case 'email': setEmail(e.target.value);
-            break;
-            case 'password': setPass(e.target.value);
-        }
+        dispatch(
+            {
+                type: SET_FORM_DATA, 
+                payload: {
+                    field: e.target.name,
+                    set: e.target.value
+                }
+            }
+        )
     }
     const submitHandler = (e) => {
         e.preventDefault();
-        axios
-            .post('http://localhost:8080/register', {name, email, password})
-            .then(response => {
-                console.log(response)
-            })
-            .catch(error => {
-                console.log(error)
-            })
+        requestHandler({
+            method: 'post',
+            urlPrefix: `${REGISTER}`,
+            data: {
+                name, 
+                email, 
+                password
+            }
+        })
+        .then(response => {
+            clearData(SET_FORM_DATA, formData)
+            history.push(`/${LOGIN}`)
+        })
+        .catch(error => {
+            console.log(error)
+        })
     }
   return (
     <RegisterContainer>
@@ -38,7 +57,7 @@ function RegisterPage() {
                 <label htmlFor="">Email</label>
                 <input type="text" name="email" value={email} onChange={changeHandler} />
                 <label htmlFor="">Password</label>
-                <input type="text" name="password" value={password} onChange={changeHandler} />
+                <input type="password" name="password" value={password} onChange={changeHandler} />
 
                 <div className="send-btn">
                     <button type="submit" >Send</button>
