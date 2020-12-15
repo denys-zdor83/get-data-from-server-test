@@ -2,7 +2,6 @@ import React from "react";
 import { useDispatch } from "react-redux";
 
 function useClearDataHandler() {
-    console.log('clear reg')
     const dispatch = useDispatch();
 
 

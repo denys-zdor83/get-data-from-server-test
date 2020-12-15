@@ -40,8 +40,10 @@ function LoginPage() {
             data: {email, password},
         })
         .then(response => {
+            console.log('LOGIN Page succes set isToken true')
             localStorage.setItem('token', response.data.token)
-            history.push(`/${USER_PAGE}`)
+            console.log('LOGIN Page set history "/"')
+            // history.push(`/`)
             dispatch({
                 type: SET_SINGLE_STATE_ITEM,
                 payload: {
@@ -52,12 +54,13 @@ function LoginPage() {
             clearData(SET_FORM_DATA, formData);
         })
         .catch(error => {
-            console.log('Some mistake - ' + error.response.data.message);
+            console.log('Some mistake - ' + error);
         })
     }
 
   return (
     <LoginContainer>
+        {console.log('LOGIN window start render')}
         <div className="login-block">
             <form action="" onSubmit={submitHandler}>
                 <label htmlFor="">Email</label>
@@ -69,6 +72,7 @@ function LoginPage() {
                 </div>
             </form>
         </div>
+        {console.log('LOGIN window is rendered')}
     </LoginContainer>
   );
 }

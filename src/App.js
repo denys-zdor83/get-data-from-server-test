@@ -6,7 +6,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { 
   LOGIN, 
-  USER_PAGE, 
   REGISTER, 
   SET_SINGLE_STATE_ITEM } from './utils/consts'
 import Navbar from './components/Navbar'
@@ -15,6 +14,7 @@ import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import UsersPage from './pages/UsersPage';
 import requestHandler from './utils/requestHandler';
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   const dispatch = useDispatch();
@@ -22,8 +22,10 @@ function App() {
   const isModal = useSelector(state => state.appData.isModal);
 
   const history = useHistory();
+  console.log('App isToketn = ' + isToken)
 
   React.useEffect(() => {
+    console.log('App start request - component did mount')
     const storageToken = localStorage.getItem('token');
     requestHandler({
       method: 'get',
@@ -31,15 +33,16 @@ function App() {
       headers: {"x-access-token": storageToken},
     })
     .then(response => {
-      history.push('/')
+      console.log("Success App request - set isToken true")
       dispatch({type: SET_SINGLE_STATE_ITEM, payload: {field: "isToken", set: true}});
     })
     .catch(error => {
-      history.push('/login')
+      console.log("Error App request - " + error)
     })
   }, [isToken])
 
   const hocTemplate = (Component) => {
+    console.log('hocTemplate work')
     return(
       <div>
         <Navbar />
@@ -50,11 +53,15 @@ function App() {
 
   return (
       <EnterPageContainer>
-        {/* {isModal ? <AddUser /> : ''} */}
+      {console.log('APP page start render')}
 
         <div className="main-block">
           <Switch>
-            <Route path={`/`} exact component={() => hocTemplate(UsersPage)} />
+            <ProtectedRoute 
+              path={`/`} 
+              exact 
+              component={UsersPage} 
+            />
             <Route path={`/${LOGIN}`} component={() => hocTemplate(LoginPage)} />
             <Route path={`/${REGISTER}`} component={() => hocTemplate(RegisterPage)} />
           </Switch>
@@ -67,6 +74,8 @@ function App() {
             )
           }
         </div>
+      {console.log('APP page is rendered')}
+
       </EnterPageContainer>
   );
 }
