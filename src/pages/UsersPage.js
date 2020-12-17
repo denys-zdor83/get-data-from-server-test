@@ -1,144 +1,75 @@
-import React from 'react';
-import styled from 'styled-components';
-import { useSelector, useDispatch } from 'react-redux'
+import React from 'react'
+import styled from 'styled-components'
+import { useSelector } from 'react-redux'
 
-import requestHandler from './../utils/requestHandler';
-import { 
-    SET_SINGLE_STATE_ITEM, 
-    SET_USER_DATA } from '../utils/consts'
+import {
+  useShowModal,
+  usePostUsers,
+  useDeleteUser,
+  useOpenModal } from './../requests/requests'
 
 const UsersPage = () => {
-    const users = useSelector(state => state.appData.users);
+  const users = useSelector(state => state.appData.users)
 
-    const dispatch = useDispatch();
+  const showModal = useShowModal()
+  const postUsers = usePostUsers()
+  const deleteUser = useDeleteUser()
+  const openModal = useOpenModal()
 
-    const showModal = () => {
-        dispatch({
-            type: SET_SINGLE_STATE_ITEM,
-            payload: {
-                field: "isModal",
-                set: true
-            }
-        })
-    }
+  React.useEffect(() => {
+    postUsers()
+  }, [])
 
-    const postUsers = () => {
-        const storageToken = localStorage.getItem('token');
-
-        return requestHandler({
-            method: 'post',
-            urlPrefix: '',
-            headers: {"x-access-token": storageToken},
-        })
-        .then(response => {
-            dispatch(
-                {
-                    type: SET_SINGLE_STATE_ITEM, 
-                    payload: {
-                        field: "users", 
-                        set: response.data.workers
-                    }
-                }
-            )
-        })
-        .catch(error => {
-          console.log('Some mistake - ' + error)
-        })
-    }
-
-    const deleteUser = (id) => {
-        const storageToken = localStorage.getItem('token');
-
-        requestHandler({
-            method: 'delete',
-            urlPrefix: `delete/${id}`,
-            headers: {"x-access-token": storageToken}
-        })
-        .then(response => {
-            console.log(response)
-            postUsers()
-        })
-        .catch(error => {
-            console.log('Some mistake - ' + error)
-        })
-    }
-
-    const openModal = (id, userData) => {
-        showModal();
-        dispatch(
-            {
-                type: SET_SINGLE_STATE_ITEM, 
-                    payload: {
-                        field: "editID",
-                        set: id
-                }
-            }
-        )
-        dispatch(
-            {
-              type: SET_USER_DATA, 
-              payload: {
-                  set: userData
-              }
-            }
-        )
-    }
-
-    React.useEffect(() => {
-        postUsers()
-    }, []);
-
-    const usersArray = users.map(
-        ({_id: id, firstName, lastName, gender, position, salary}) => {
-        return (
-            <tr key={id}>
-                <td>{firstName}</td>
-                <td>{lastName}</td>
-                <td>{gender}</td>
-                <td>{position}</td>
-                <td>{salary}</td>
-                <td>
-                    <span 
-                        className="icon-btn" 
-                        onClick={() => { 
-                            openModal(
-                                id, 
-                                {firstName, lastName, gender, position, salary}
-                            ) 
-                        }}
-                    >Edit </span>
-                    <span 
-                        className="icon-btn" 
-                        onClick={() => {
-                            deleteUser(id)
-                        }} 
-                    >Delete</span>
-                </td>
-            </tr>
-        )
-    })
+  const usersArray = users.map(({ _id: id, firstName, lastName, gender, position, salary }) => {
     return (
-        <UsersContainer>
-            <table>
-                <thead>
-                    <tr className="titleLine">
-                        <td>First Name</td>
-                        <td>Last Name</td>
-                        <td>Gender</td>
-                        <td>Position</td>
-                        <td>Salary</td>
-                        <td></td>
-                    </tr>
-                </thead>
-                <tbody>
-                    {usersArray}
-                </tbody>
-            </table>
-            <button onClick={showModal}>
-                Add User
-            </button>
-        </UsersContainer>
-    );
+      <tr key={id}>
+        <td>{firstName}</td>
+        <td>{lastName}</td>
+        <td>{gender}</td>
+        <td>{position}</td>
+        <td>{salary}</td>
+        <td>
+          <span
+            className='icon-btn'
+            onClick={() => {
+              openModal(
+                id,
+                { firstName, lastName, gender, position, salary },
+                showModal
+              )
+            }}
+          >Edit </span>
+          <span
+            className='icon-btn'
+            onClick={() => { deleteUser(id, postUsers) }}
+          >Delete</span>
+        </td>
+      </tr>
+    )
+  })
+  return (
+    <UsersContainer>
+      {console.log('start render UserPage')}
+      <table>
+        <thead>
+          <tr className="titleLine">
+            <td>First Name</td>
+            <td>Last Name</td>
+            <td>Gender</td>
+            <td>Position</td>
+            <td>Salary</td>
+            <td></td>
+          </tr>
+        </thead>
+        <tbody>
+          {usersArray}
+        </tbody>
+      </table>
+      <button onClick={showModal}>
+          Add User
+      </button>
+    </UsersContainer>
+  );
 }
 
 const UsersContainer = styled.div`
