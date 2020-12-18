@@ -38,6 +38,7 @@ export const usePaginationRequest = () => {
       .then(response => {
         console.log(response)
         dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'users', set: response.data.workers } })
+        dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'page', set: response.data.page } })
       })
       .catch(error => {
         console.log('Some mistake - ' + error)
@@ -57,6 +58,7 @@ export const usePostUsers = () => {
         console.log(response)
         dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'users', set: response.data.workers } })
         dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'pages', set: response.data.pages } })
+        dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'page', set: response.data.page } })
       })
       .catch(error => {
         console.log('Some mistake - ' + error)

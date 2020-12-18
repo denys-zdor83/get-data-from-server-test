@@ -5,6 +5,7 @@ import {
 
 const initialState = {
   isModal: false,
+  page: 0,
   pages: 0,
   editID: '',
   users: [],
