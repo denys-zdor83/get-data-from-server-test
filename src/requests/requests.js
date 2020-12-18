@@ -1,27 +1,38 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 
 import requestHandler from './../utils/requestHandler'
-import { SET_SINGLE_STATE_ITEM, SET_USER_DATA } from './../utils/consts'
+import {
+  SET_SINGLE_STATE_ITEM,
+  REGISTER,
+  SET_FORM_DATA,
+  LOGIN } from './../utils/consts'
+import { useClearDataHandler, useCloseModal } from './../actions/actions'
 
-export const useShowModal = () => {
-  const dispatch = useDispatch()
-
-  return React.useCallback(() => {
-    console.log('show modal worked')
-    dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'isModal', set: true } })
+export const useAppRequest = () => {
+  const history = useHistory()
+  return React.useCallback((id, fn) => {
+    requestHandler({
+      method: 'get',
+      urlPrefix: 'info'
+    })
+      .then(response => {
+        history.push(`/`)
+      })
+      .catch(error => {
+        console.log('Error App request - ' + error)
+      })
   }, [])
 }
 
 export const usePostUsers = () => {
-  const storageToken = localStorage.getItem('token')
   const dispatch = useDispatch()
 
   return React.useCallback(() => {
     requestHandler({
       method: 'post',
-      urlPrefix: '',
-      headers: { "x-access-token": storageToken }
+      urlPrefix: ''
     })
       .then(response => {
         dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'users', set: response.data.workers } })
@@ -33,13 +44,10 @@ export const usePostUsers = () => {
 }
 
 export const useDeleteUser = () => {
-  const storageToken = localStorage.getItem('token')
-
   return React.useCallback((id, fn) => {
     requestHandler({
       method: 'delete',
-      urlPrefix: `delete/${id}`,
-      headers: {"x-access-token": storageToken}
+      urlPrefix: `delete/${id}`
     })
       .then(response => {
         console.log(response)
@@ -51,12 +59,100 @@ export const useDeleteUser = () => {
   }, [])
 }
 
-export const useOpenModal = () => {
-  const dispatch = useDispatch()
+export const useSubmitHandlerReg = () => {
+  const history = useHistory()
+  const clearData = useClearDataHandler()
 
-  return React.useCallback((id, userData, fn) => {
-    fn()
-    dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'editID', set: id } })
-    dispatch({ type: SET_USER_DATA, payload: { set: userData } })
+  return React.useCallback((e, string, formData) => {
+    e.preventDefault()
+    console.log(e)
+    const { name, email, password } = formData
+
+    if (string === 'LoginPage') {
+      e.preventDefault()
+      requestHandler({
+        method: 'post',
+        urlPrefix: `${LOGIN}`,
+        data: { email, password }
+      })
+        .then(response => {
+          console.log(response)
+          localStorage.setItem('token', response.data.token)
+          history.push(`/`)
+          clearData(SET_FORM_DATA, formData)
+        })
+        .catch(error => {
+          console.log('Mistake loginPage - ' + error)
+        })
+    } else {
+      e.preventDefault()
+      requestHandler({
+        method: 'post',
+        urlPrefix: `${REGISTER}`,
+        data: { name, email, password }
+      })
+        .then(response => {
+          console.log(response)
+          clearData(SET_FORM_DATA, formData)
+          history.push(`/${LOGIN}`)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    }
+  }, [])
+}
+
+export const useSubmitHandlerModal = () => {
+  const dispatch = useDispatch()
+  const postUsers = usePostUsers()
+  const closeModal = useCloseModal()
+
+  return React.useCallback((e, editID, userData) => {
+    e.preventDefault()
+    const { firstName, lastName, gender, salary, position } = userData
+
+    if (editID.length) {
+      requestHandler({
+        method: 'put',
+        urlPrefix: `update/${editID}`,
+        data: {
+          firstName,
+          lastName,
+          gender,
+          salary,
+          position
+        }
+      })
+        .then(response => {
+          console.log(response)
+          postUsers()
+        })
+        .catch(error => {
+          console.log('Some mistake - ' + error)
+        })
+      dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'editID', set: '' } })
+      closeModal()
+    } else {
+      requestHandler({
+        method: 'post',
+        urlPrefix: 'create',
+        data: {
+          firstName,
+          lastName,
+          gender,
+          salary,
+          position
+        }
+      })
+        .then(response => {
+          console.log(response)
+          postUsers()
+        })
+        .catch(error => {
+          console.log('Some mistake - ' + error)
+        })
+      closeModal()
+    }
   }, [])
 }

@@ -1,43 +1,26 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import styled from 'styled-components'
-import { Route, Switch, useHistory } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
+import { Route, Switch } from 'react-router-dom'
+import { useSelector } from 'react-redux'
 
-import { LOGIN, REGISTER, SET_SINGLE_STATE_ITEM } from './utils/consts'
+import { LOGIN, REGISTER } from './utils/consts'
 import Navbar from './components/Navbar/Navbar'
 import AddUser from './components/AddUser'
 import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
 import UsersPage from './pages/UsersPage'
-import requestHandler from './utils/requestHandler'
 import ProtectedRoute from './components/ProtectedRoute'
+import { useAppRequest } from './requests/requests'
 
 function App () {
-  const dispatch = useDispatch()
-  const isToken = useSelector(state => state.appData.isToken)
   const isModal = useSelector(state => state.appData.isModal)
-  const history = useHistory()
-
-  console.log('App isToketn = ' + isToken)
+  const token = localStorage.getItem('token')
+  const appRequest = useAppRequest()
 
   React.useEffect(() => {
-    console.log('App start request - component did mount')
-    const storageToken = localStorage.getItem('token')
-    requestHandler({
-      method: 'get',
-      urlPrefix: 'info',
-      headers: { 'x-access-token': storageToken }
-    })
-      .then(response => {
-        console.log('Success App request - set isToken true')
-        dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'isToken', set: true } })
-        history.push(`/`)
-      })
-      .catch(error => {
-        console.log('Error App request - ' + error)
-      })
-  }, [isToken])
+    appRequest()
+  }, [token])
 
   const hocTemplate = (Component) => {
     console.log('hocTemplate work')
@@ -51,8 +34,6 @@ function App () {
 
   return (
     <EnterPageContainer>
-      {console.log('APP page start render')}
-
       <div className='main-block'>
         <Switch>
           <ProtectedRoute exact path={'/'} render={(props) => hocTemplate(UsersPage)} />
@@ -68,7 +49,6 @@ function App () {
           )
         }
       </div>
-      {console.log('APP page is rendered')}
     </EnterPageContainer>
   )
 }

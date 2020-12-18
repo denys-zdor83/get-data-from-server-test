@@ -1,34 +1,25 @@
 import React from 'react'
 import styled from 'styled-components'
-import { useSelector, useDispatch } from 'react-redux'
 
-import LogOutBtn from "./LogOutBtn"
-import LogInBtn from "./LogInBtn"
-import RegisterBtn from "./RegisterBtn"
+import LogOutBtn from './LogOutBtn'
+import RegLogBtn from './RegLogBtn'
+import { REGISTER, LOGIN } from './../../utils/consts'
 
 function Navbar () {
-  const isToken = useSelector(state => state.appData.isToken)
-
-  const SetButtons = () => {
-    if (isToken) {
-      return (
-        <NavbarContainer>
-          <LogOutBtn />
-        </NavbarContainer>
-      )
-    } else {
-      return (
-        <NavbarContainer>
-          <LogInBtn />
-          <RegisterBtn />
-        </NavbarContainer>
-      )
-    }
+  if (localStorage.getItem('token')) {
+    return (
+      <NavbarContainer>
+        <LogOutBtn />
+      </NavbarContainer>
+    )
+  } else {
+    return (
+      <NavbarContainer>
+        <RegLogBtn to={LOGIN} text={'Log in'} />
+        <RegLogBtn to={REGISTER} text={'Register'} />
+      </NavbarContainer>
+    )
   }
-
-  return (
-    <SetButtons />
-  )
 }
 
 const NavbarContainer = styled.div`
@@ -54,4 +45,4 @@ const NavbarContainer = styled.div`
     }
 `
 
-export default Navbar;
+export default Navbar

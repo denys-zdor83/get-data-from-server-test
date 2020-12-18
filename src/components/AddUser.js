@@ -1,82 +1,23 @@
 import React from 'react'
 import styled from 'styled-components'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
+import { SET_USER_DATA } from './../utils/consts'
+import { useSubmitHandlerModal } from './../requests/requests'
 import {
-  SET_USER_DATA,
-  SET_SINGLE_STATE_ITEM } from './../utils/consts'
-import requestHandler from './../utils/requestHandler'
-import useClearDataHandler from '../utils/useClearDataHandler'
-import { usePostUsers } from './../requests/requests'
+  useCloseModal,
+  useChangeHandler,
+  useClearDataHandler } from './../actions/actions'
 
 const AddUser = () => {
   const userData = useSelector(state => state.appData.userData)
-  const { firstName, lastName, gender, salary, position } = userData
   const editID = useSelector(state => state.appData.editID)
+  const { firstName, lastName, gender, salary, position } = userData
 
-  const dispatch = useDispatch()
   const clearData = useClearDataHandler()
-  const postUsers = usePostUsers()
-
-  const closeModal = () => {
-    dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'isModal', set: false } })
-    if (editID.length) {
-      dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'editID', set: '' } })
-    }
-  }
-
-  const submitHandler = (e) => {
-    e.preventDefault()
-    const storageToken = localStorage.getItem('token')
-    closeModal()
-
-    if (editID.length) {
-      requestHandler({
-        method: 'post',
-        urlPrefix: `update/${editID}`,
-        headers: {"x-access-token": storageToken},
-        data: {
-          firstName,
-          lastName,
-          gender,
-          salary,
-          position
-        }
-      })
-        .then(response => {
-          console.log(response)
-          postUsers()
-        })
-        .catch(error => {
-          console.log('Some mistake - ' + error)
-        })
-      dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: "editID", set: "" } })
-    } else {
-      requestHandler({
-        method: 'post',
-        urlPrefix: 'create',
-        headers: {"x-access-token": storageToken},
-        data: {
-          firstName,
-          lastName,
-          gender,
-          salary,
-          position
-        }
-      })
-        .then(response => {
-          console.log(response)
-          postUsers()
-        })
-        .catch(error => {
-          console.log('Some mistake - ' + error)
-        })
-    }
-  }
-
-  const changeHandler = (e) => {
-    dispatch({ type: SET_USER_DATA, payload: { field: e.target.name, set: e.target.value } })
-  }
+  const closeModal = useCloseModal()
+  const changeHandler = useChangeHandler()
+  const submitHandlerModal = useSubmitHandlerModal()
 
   React.useEffect(() => {
     return () => {
@@ -85,49 +26,49 @@ const AddUser = () => {
   }, [])
 
   return (
-    <AddUserContainer>
-      <div className="modal">
-        <div className="cross" onClick={closeModal}>
+    <AddUserContainer onClick={closeModal}>
+      <div className='modal' onClick={(event) => event.stopPropagation()}>
+        <div className='cross' onClick={closeModal}>
           &times;
         </div>
-        <form onSubmit={submitHandler}>
+        <form onSubmit={(e) => submitHandlerModal(e, editID, userData)}>
           <label>First Name</label>
           <input
-            type="text"
-            name="firstName"
+            type='text'
+            name='firstName'
             value={firstName}
-            onChange={changeHandler}
+            onChange={(e) => changeHandler(e, SET_USER_DATA)}
           />
           <label>Last Name</label>
           <input
-            type="text"
-            name="lastName"
+            type='text'
+            name='lastName'
             value={lastName}
-            onChange={changeHandler}
+            onChange={(e) => changeHandler(e, SET_USER_DATA)}
           />
           <label>Gender</label>
           <input
-            type="text"
-            name="gender"
+            type='text'
+            name='gender'
             value={gender}
-            onChange={changeHandler}
+            onChange={(e) => changeHandler(e, SET_USER_DATA)}
           />
           <label>Salary</label>
           <input
-            type="text"
-            name="salary"
+            type='text'
+            name='salary'
             value={salary}
-            onChange={changeHandler}
+            onChange={(e) => changeHandler(e, SET_USER_DATA)}
           />
           <label>Position</label>
           <input
-            type="text"
-            name="position"
+            type='text'
+            name='position'
             value={position}
-            onChange={changeHandler}
+            onChange={(e) => changeHandler(e, SET_USER_DATA)}
           />
-          <div className="submit-btn">
-            <button type="submit" >Send</button>
+          <div className='submit-btn'>
+            <button type='submit'>Send</button>
           </div>
         </form>
       </div>
@@ -189,4 +130,4 @@ const AddUserContainer = styled.div`
   }
 `
 
-export default AddUser;
+export default AddUser

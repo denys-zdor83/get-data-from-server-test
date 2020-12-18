@@ -3,10 +3,11 @@ import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 
 import {
-  useShowModal,
   usePostUsers,
-  useDeleteUser,
-  useOpenModal } from './../requests/requests'
+  useDeleteUser } from './../requests/requests'
+import {
+  useShowModal,
+  useOpenModal } from './../actions/actions'
 
 const UsersPage = () => {
   const users = useSelector(state => state.appData.users)
@@ -52,13 +53,13 @@ const UsersPage = () => {
       {console.log('start render UserPage')}
       <table>
         <thead>
-          <tr className="titleLine">
+          <tr className='titleLine'>
             <td>First Name</td>
             <td>Last Name</td>
             <td>Gender</td>
             <td>Position</td>
             <td>Salary</td>
-            <td></td>
+            <td />
           </tr>
         </thead>
         <tbody>
@@ -69,7 +70,7 @@ const UsersPage = () => {
           Add User
       </button>
     </UsersContainer>
-  );
+  )
 }
 
 const UsersContainer = styled.div`
