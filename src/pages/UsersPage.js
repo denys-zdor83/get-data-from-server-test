@@ -8,6 +8,7 @@ import {
 import {
   useShowModal,
   useOpenModal } from './../actions/actions'
+import Pagination from '../components/Pagination'
 
 const UsersPage = () => {
   const users = useSelector(state => state.appData.users)
@@ -66,6 +67,7 @@ const UsersPage = () => {
           {usersArray}
         </tbody>
       </table>
+      <Pagination />
       <button onClick={showModal}>
           Add User
       </button>

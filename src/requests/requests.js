@@ -26,6 +26,25 @@ export const useAppRequest = () => {
   }, [])
 }
 
+export const usePaginationRequest = () => {
+  const dispatch = useDispatch()
+
+  return React.useCallback((num) => {
+    requestHandler({
+      method: 'post',
+      urlPrefix: '',
+      data: { page: num }
+    })
+      .then(response => {
+        console.log(response)
+        dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'users', set: response.data.workers } })
+      })
+      .catch(error => {
+        console.log('Some mistake - ' + error)
+      })
+  }, [])
+}
+
 export const usePostUsers = () => {
   const dispatch = useDispatch()
 
@@ -35,7 +54,9 @@ export const usePostUsers = () => {
       urlPrefix: ''
     })
       .then(response => {
+        console.log(response)
         dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'users', set: response.data.workers } })
+        dispatch({ type: SET_SINGLE_STATE_ITEM, payload: { field: 'pages', set: response.data.pages } })
       })
       .catch(error => {
         console.log('Some mistake - ' + error)
